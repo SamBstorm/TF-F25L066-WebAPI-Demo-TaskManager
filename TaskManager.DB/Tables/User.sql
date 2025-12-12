@@ -1,0 +1,26 @@
+﻿CREATE TABLE [dbo].[User]
+(
+	[UserId] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+	[Email] NVARCHAR(320) NOT NULL CONSTRAINT UK_User_Email UNIQUE,
+	[Password] VARBINARY(32) NOT NULL,
+	[Salt] UNIQUEIDENTIFIER NOT NULL,
+	[Role] VARCHAR(8) NOT NULL DEFAULT 'User',
+	[CreationDate] DATETIME2 NOT NULL DEFAULT GETDATE(),
+	[DisableDate] DATETIME2
+)
+
+
+GO
+
+CREATE TRIGGER [dbo].[Trigger_User_Delete]
+    ON [dbo].[User]
+    INSTEAD OF DELETE
+    AS
+    BEGIN
+        SET NoCount ON
+		DECLARE @userId UNIQUEIDENTIFIER
+		SELECT @userId = [UserId] FROM [deleted]
+		UPDATE [User]
+			SET [DisableDate] = GETDATE()
+			WHERE [UserId] = @userId
+    END

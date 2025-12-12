@@ -1,0 +1,7 @@
+﻿CREATE PROCEDURE [dbo].[SP_Task_Delete]
+	@taskId UNIQUEIDENTIFIER
+AS
+BEGIN
+	DELETE FROM [Task]
+		WHERE [TaskId] = @taskId
+END

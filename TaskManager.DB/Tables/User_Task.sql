@@ -1,0 +1,19 @@
+﻿CREATE TABLE [dbo].[User_Task]
+(
+	[UserTaskId] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+	[UserId] UNIQUEIDENTIFIER NOT NULL,
+	[TaskId] UNIQUEIDENTIFIER NOT NULL,
+	[UpdatedDate] DATETIME2 NOT NULL DEFAULT GETDATE(),
+	[Status] VARCHAR(12) NOT NULL,
+	[Comment] NVARCHAR(MAX),
+	CONSTRAINT CK_UserTask_Status CHECK ([Status] IN ('En cours', 'A valider', 'Validée', 'Refusée'))
+)
+GO
+
+ALTER TABLE [User_Task] ADD CONSTRAINT [FK_UserTask_User] FOREIGN KEY ([UserId])
+	REFERENCES [User]([UserId])
+GO
+
+ALTER TABLE [User_Task] ADD CONSTRAINT [FK_UserTask_Task] FOREIGN KEY ([TaskId])
+	REFERENCES [Task]([TaskId])
+GO

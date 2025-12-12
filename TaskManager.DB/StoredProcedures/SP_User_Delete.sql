@@ -1,0 +1,6 @@
+﻿CREATE PROCEDURE [dbo].[SP_User_Delete]
+	@userId UNIQUEIDENTIFIER
+AS
+	DELETE FROM [User]
+		WHERE [UserId] = @userId
+RETURN 0
