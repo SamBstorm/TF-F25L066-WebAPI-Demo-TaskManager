@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskManager.BLL.Entities;
+using TaskManager.Common.Repositories;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +10,46 @@ namespace TaskManager.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IUserRepository<BLL.Entities.User> _userService;
+
+        public UserController(IUserRepository<User> userService)
+        {
+            _userService = userService;
+        }
+
         // GET: api/<UserController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<User> Get()
         {
-            return new string[] { "value1", "value2" };
+            return _userService.Get();
         }
 
         // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id:guid}")]
+        public User Get(Guid id)
         {
-            return "value";
+            return _userService.Get(id);
         }
 
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] User value)
         {
+            _userService.Insert(value);
         }
-
+        /*Not implemented
         // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{id:guid}")]
+        public void Put(Guid id, [FromBody] User value)
         {
-        }
+            _userService.Update(id, value);
+        }*/
 
         // DELETE api/<UserController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{id:guid}")]
+        public void Delete(Guid id)
         {
+            _userService.Delete(id);
         }
     }
 }
