@@ -13,14 +13,23 @@ namespace TaskManager.API
             IConfiguration configuration = builder.Configuration;
             // Add services to the container.
 
+            /* En ADO.net
             builder.Services.AddScoped<DbConnection>(context => new SqlConnection(configuration.GetConnectionString("TaskManager.Database")));
 
             //FakeSerives
             builder.Services.AddScoped<DAL.Services.ApiKeyFakeService>();
 
             //DB Services
-            builder.Services.AddScoped<IUserRepository<BLL.Entities.User>, BLL.Services.UserService>();
             builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.UserService>();
+            */
+
+            /* En EFCore */
+            builder.Services.AddDbContext<EF.TaskManagerDbContext>(context =>
+                new EF.TaskManagerDbContext(
+                    configuration.GetConnectionString("TaskManager.EntityFramework")!
+                    ));
+
+            builder.Services.AddScoped<IUserRepository<BLL.Entities.User>, BLL.Services.UserService>();
 
             //Route configuration
             builder.Services.Configure<RouteOptions>(options => {
