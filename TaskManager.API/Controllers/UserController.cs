@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using TaskManager.API.Handlers;
 using TaskManager.API.Models;
 using TaskManager.BLL.Entities;
@@ -21,16 +22,40 @@ namespace TaskManager.API.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
-        public IAsyncEnumerable<User> Get()
+        [ProducesResponseType<EnumerableResult<User>>(200)]
+        public async Task<IActionResult> Get()
         {
-            return _userService.Get();
+            return Ok(new EnumerableResult<User>()
+            {
+                Result = await _userService.Get().ToArrayAsync()
+            });
         }
 
         // GET api/<UserController>/5
         [HttpGet("{id:guid}")]
-        public User Get(Guid id)
+        [ProducesResponseType<User>(200)]
+        [ProducesResponseType<ErrorResponse>(404)]
+        [ProducesResponseType(418)]
+        public IActionResult Get(Guid id)
         {
-            return _userService.Get(id);
+            try
+            {
+                return Ok(_userService.Get(id));
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return NotFound(new ErrorResponse() { 
+                    Route = HttpContext.Request.GetEncodedUrl(),
+                    Controller = nameof(UserController),
+                    Action = nameof(Get),
+                    StatusCode = 404,
+                    RoutesValues = new { id }
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(418);
+            }
         }
 
         // POST api/<UserController>
