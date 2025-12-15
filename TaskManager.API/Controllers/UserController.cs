@@ -15,10 +15,14 @@ namespace TaskManager.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository<BLL.Entities.User> _userService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository<User> userService)
+        public UserController(
+            IUserRepository<User> userService, 
+            ILogger<UserController> logger)
         {
             _userService = userService;
+            _logger = logger;
         }
 
         // GET: api/<UserController>
@@ -46,6 +50,7 @@ namespace TaskManager.API.Controllers
             }
             catch (ArgumentOutOfRangeException)
             {
+                _logger.LogInformation($"id : {id}");
                 return NotFound(new ErrorResponse() {
                     Route = HttpContext.Request.GetEncodedUrl(),
                     Controller = nameof(UserController),
