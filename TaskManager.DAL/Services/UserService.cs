@@ -10,7 +10,7 @@ namespace TaskManager.DAL.Services
     {
         public UserService(DbConnection connection) : base(connection) { }
 
-        public IEnumerable<User> Get()
+        public async IAsyncEnumerable<User> Get()
         {
             using (DbCommand command = _connection.CreateCommand())
             {

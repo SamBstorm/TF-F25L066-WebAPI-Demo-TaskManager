@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using System.Data.Common;
+using TaskManager.API.Handlers.RouteConstraints;
 using TaskManager.Common.Repositories;
 
 namespace TaskManager.API
@@ -14,9 +15,19 @@ namespace TaskManager.API
 
             builder.Services.AddScoped<DbConnection>(context => new SqlConnection(configuration.GetConnectionString("TaskManager.Database")));
 
+            //FakeSerives
+            builder.Services.AddScoped<DAL.Services.ApiKeyFakeService>();
+
+            //DB Services
             builder.Services.AddScoped<IUserRepository<BLL.Entities.User>, BLL.Services.UserService>();
             builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.UserService>();
 
+            //Route configuration
+            builder.Services.Configure<RouteOptions>(options => {
+                options.ConstraintMap.Add("key", typeof(ApiKeyRouteConstraint));
+            });
+
+            //Base configuration
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

@@ -21,9 +21,12 @@ namespace TaskManager.DAL.Services
             return _users.Remove(_users.Find(u => u.UserId == userId));
         }
 
-        public IEnumerable<User> Get()
+        public async IAsyncEnumerable<User> Get()
         {
-            return _users;
+            foreach (User user in _users)
+            {
+                yield return user;
+            }
         }
 
         public User Get(Guid userId)

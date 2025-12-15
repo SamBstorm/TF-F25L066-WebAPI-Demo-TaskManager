@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskManager.API.Handlers;
+using TaskManager.API.Models;
 using TaskManager.BLL.Entities;
 using TaskManager.Common.Repositories;
 
@@ -19,7 +21,7 @@ namespace TaskManager.API.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
-        public IEnumerable<User> Get()
+        public IAsyncEnumerable<User> Get()
         {
             return _userService.Get();
         }
@@ -33,10 +35,50 @@ namespace TaskManager.API.Controllers
 
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] User value)
+        public Guid Post([FromBody] UserPost value)
         {
-            _userService.Insert(value);
+            return _userService.Insert(value.ToBLL());
         }
+
+        [HttpPost("Login")]
+        public User? CheckPassword([FromBody]UserPost value)
+        {
+            try
+            {
+                return _userService.CheckPassword(value.Email, value.Password);
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        [HttpPost("Login/{email:length(3,320)}/{password:length(8,64)}")]
+        public User? CheckPassword([FromRoute]string email, [FromRoute]string password)
+        {
+            try
+            {
+                return _userService.CheckPassword(email, password);
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        [HttpPost("Login2")]
+        public User? CheckPassword2([FromQuery] string email, [FromQuery] string password)
+        {
+            try
+            {
+                return _userService.CheckPassword(email, password);
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
         /*Not implemented
         // PUT api/<UserController>/5
         [HttpPut("{id:guid}")]

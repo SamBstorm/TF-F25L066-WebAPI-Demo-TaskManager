@@ -12,9 +12,12 @@ namespace TaskManager.BLL.Services
         {
             _dalService = userRepository;
         }
-        public IEnumerable<User> Get()
+        public async IAsyncEnumerable<User> Get()
         {
-            return _dalService.Get().Select(dal => dal.ToBLL());
+            await foreach(DAL.Entities.User user in _dalService.Get())
+            {
+                yield return user.ToBLL();
+            }
         }
 
         public User Get(Guid userId) 
