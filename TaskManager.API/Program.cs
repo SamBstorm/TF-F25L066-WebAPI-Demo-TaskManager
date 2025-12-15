@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using System.Data.Common;
+using TaskManager.API.Handlers.Formatters;
 using TaskManager.API.Handlers.RouteConstraints;
 using TaskManager.Common.Repositories;
 
@@ -15,21 +16,21 @@ namespace TaskManager.API
 
             #region ADO.net
             //// Génération de la connection en Base de données
-            //builder.Services.AddScoped<DbConnection>(context => new SqlConnection(configuration.GetConnectionString("TaskManager.Database")));
+            builder.Services.AddScoped<DbConnection>(context => new SqlConnection(configuration.GetConnectionString("TaskManager.Database")));
 
             //// Service de la DAL en ADO
-            //builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.UserService>();
+            builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.UserService>();
             #endregion
 
             #region EFCore
             ////Génération d'un DbContext lié à la Base de données
-            builder.Services.AddDbContext<EF.TaskManagerDbContext>(context =>
+            /*builder.Services.AddDbContext<EF.TaskManagerDbContext>(context =>
                 new EF.TaskManagerDbContext(
                     configuration.GetConnectionString("TaskManager.EntityFramework")!
-                    ));
+                    ));*/
 
             //// Service de la DAL en EFCore
-            builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, EF.Services.UserService>();
+            //builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, EF.Services.UserService>();
             #endregion
 
             #region FakeService
@@ -45,7 +46,15 @@ namespace TaskManager.API
             });
 
             //Base configuration
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers(options =>
+                {
+                    options.OutputFormatters.Insert(0,new CSVFormatter());
+                    options.RespectBrowserAcceptHeader = true;
+                    options.ReturnHttpNotAcceptable = true;
+                })
+                .AddXmlDataContractSerializerFormatters();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

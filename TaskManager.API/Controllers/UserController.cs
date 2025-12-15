@@ -22,25 +22,26 @@ namespace TaskManager.API.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
-        [ProducesResponseType<EnumerableResult<User>>(200)]
+        [ProducesResponseType<EnumerableResult<UserModel>>(200)]
         public async Task<IActionResult> Get()
         {
-            return Ok(new EnumerableResult<User>()
+            IEnumerable<User> result = await _userService.Get().ToArrayAsync();
+            return Ok(new EnumerableResult<UserModel>()
             {
-                Result = await _userService.Get().ToArrayAsync()
+                Result = result.Select(u => u.ToModel())
             });
         }
 
         // GET api/<UserController>/5
         [HttpGet("{id:guid}")]
-        [ProducesResponseType<User>(200)]
+        [ProducesResponseType<UserModel>(200)]
         [ProducesResponseType<ErrorResponse>(404)]
         [ProducesResponseType(418)]
-        public async Task<ActionResult<User>> Get(Guid id)
+        public async Task<ActionResult<UserModel>> Get(Guid id)
         {
             try
             {
-                return _userService.Get(id);
+                return _userService.Get(id).ToModel();
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -66,13 +67,13 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPost("Login")]
-        [ProducesResponseType<User>(200)]
+        [ProducesResponseType<UserModel>(200)]
         [ProducesResponseType(401)]
-        public ActionResult<User> CheckPassword([FromBody]UserPost value)
+        public ActionResult<UserModel> CheckPassword([FromBody]UserPost value)
         {
             try
             {
-                return _userService.CheckPassword(value.Email, value.Password);
+                return _userService.CheckPassword(value.Email, value.Password).ToModel();
             }
             catch (InvalidOperationException)
             {
@@ -81,28 +82,32 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPost("Login/{email:length(3,320)}/{password:length(8,64)}")]
-        public User? CheckPassword([FromRoute]string email, [FromRoute]string password)
+        [ProducesResponseType<UserModel>(200)]
+        [ProducesResponseType(401)]
+        public ActionResult<UserModel> CheckPassword([FromRoute]string email, [FromRoute]string password)
         {
             try
             {
-                return _userService.CheckPassword(email, password);
+                return _userService.CheckPassword(email, password).ToModel();
             }
             catch (InvalidOperationException)
             {
-                return null;
+                return Unauthorized();
             }
         }
 
         [HttpPost("Login2")]
-        public User? CheckPassword2([FromQuery] string email, [FromQuery] string password)
+        [ProducesResponseType<UserModel>(200)]
+        [ProducesResponseType(401)]
+        public ActionResult<UserModel> CheckPassword2([FromQuery] string email, [FromQuery] string password)
         {
             try
             {
-                return _userService.CheckPassword(email, password);
+                return _userService.CheckPassword(email, password).ToModel();
             }
             catch (InvalidOperationException)
             {
-                return null;
+                return Unauthorized();
             }
         }
 
