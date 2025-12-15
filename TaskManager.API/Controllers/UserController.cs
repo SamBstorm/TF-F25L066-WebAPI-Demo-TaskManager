@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.API.Handlers;
 using TaskManager.API.Models;
@@ -45,7 +46,7 @@ namespace TaskManager.API.Controllers
             }
             catch (ArgumentOutOfRangeException)
             {
-                return NotFound(new ErrorResponse() { 
+                return NotFound(new ErrorResponse() {
                     Route = HttpContext.Request.GetEncodedUrl(),
                     Controller = nameof(UserController),
                     Action = nameof(Get),
@@ -61,15 +62,16 @@ namespace TaskManager.API.Controllers
 
         // POST api/<UserController>
         [HttpPost]
-        public Guid Post([FromBody] UserPost value)
+        [ProducesResponseType<ValueResponse<Guid>>(200)]
+        public ActionResult<ValueResponse<Guid>> Post([FromBody] UserPost value)
         {
-            return _userService.Insert(value.ToBLL());
+            return new ValueResponse<Guid>() { Value = _userService.Insert(value.ToBLL()) };
         }
 
         [HttpPost("Login")]
         [ProducesResponseType<UserModel>(200)]
         [ProducesResponseType(401)]
-        public ActionResult<UserModel> CheckPassword([FromBody]UserPost value)
+        public ActionResult<UserModel> CheckPassword([FromBody] UserPost value)
         {
             try
             {
@@ -84,7 +86,7 @@ namespace TaskManager.API.Controllers
         [HttpPost("Login/{email:length(3,320)}/{password:length(8,64)}")]
         [ProducesResponseType<UserModel>(200)]
         [ProducesResponseType(401)]
-        public ActionResult<UserModel> CheckPassword([FromRoute]string email, [FromRoute]string password)
+        public ActionResult<UserModel> CheckPassword([FromRoute] string email, [FromRoute] string password)
         {
             try
             {
@@ -124,6 +126,26 @@ namespace TaskManager.API.Controllers
         public void Delete(Guid id)
         {
             _userService.Delete(id);
+        }
+
+        [HttpPatch("{id:guid}")]
+        [ProducesResponseType<UserModel>(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public ActionResult<UserModel> Patch([FromRoute] Guid id, [FromBody] JsonPatchDocument<UserModel> entity)
+        {
+            if (entity is null) return BadRequest();
+            try
+            {
+                UserModel user = _userService.Get(id).ToModel();
+                entity.ApplyTo(user);
+                //_userService.Update(id, user);
+                return user;
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
         }
     }
 }

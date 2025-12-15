@@ -49,10 +49,11 @@ namespace TaskManager.API
             builder.Services
                 .AddControllers(options =>
                 {
-                    options.OutputFormatters.Insert(0,new CSVFormatter());
+                    options.OutputFormatters.Add(new CSVFormatter());
                     options.RespectBrowserAcceptHeader = true;
                     options.ReturnHttpNotAcceptable = true;
                 })
+                .AddNewtonsoftJson()
                 .AddXmlDataContractSerializerFormatters();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
