@@ -13,21 +13,29 @@ namespace TaskManager.API
             IConfiguration configuration = builder.Configuration;
             // Add services to the container.
 
-            /* En ADO.net
-            builder.Services.AddScoped<DbConnection>(context => new SqlConnection(configuration.GetConnectionString("TaskManager.Database")));
+            #region ADO.net
+            //// Génération de la connection en Base de données
+            //builder.Services.AddScoped<DbConnection>(context => new SqlConnection(configuration.GetConnectionString("TaskManager.Database")));
 
-            //FakeSerives
-            builder.Services.AddScoped<DAL.Services.ApiKeyFakeService>();
+            //// Service de la DAL en ADO
+            //builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.UserService>();
+            #endregion
 
-            //DB Services
-            builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.UserService>();
-            */
-
-            /* En EFCore */
+            #region EFCore
+            ////Génération d'un DbContext lié à la Base de données
             builder.Services.AddDbContext<EF.TaskManagerDbContext>(context =>
                 new EF.TaskManagerDbContext(
                     configuration.GetConnectionString("TaskManager.EntityFramework")!
                     ));
+
+            //// Service de la DAL en EFCore
+            builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, EF.Services.UserService>();
+            #endregion
+
+            #region FakeService
+            //// Pas de base de données => Directement injecter le FakeService comme Service de la DAL
+            //builder.Services.AddScoped<IUserRepository<DAL.Entities.User>, DAL.Services.ApiKeyFakeService>();
+            #endregion
 
             builder.Services.AddScoped<IUserRepository<BLL.Entities.User>, BLL.Services.UserService>();
 

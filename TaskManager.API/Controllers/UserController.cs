@@ -66,7 +66,9 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPost("Login")]
-        public User? CheckPassword([FromBody]UserPost value)
+        [ProducesResponseType<User>(200)]
+        [ProducesResponseType(401)]
+        public ActionResult<User> CheckPassword([FromBody]UserPost value)
         {
             try
             {
@@ -74,7 +76,7 @@ namespace TaskManager.API.Controllers
             }
             catch (InvalidOperationException)
             {
-                return null;
+                return Unauthorized();
             }
         }
 

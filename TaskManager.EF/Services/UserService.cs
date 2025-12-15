@@ -21,12 +21,21 @@ namespace TaskManager.EF.Services
 
         public User CheckPassword(string email, string password)
         {
-            return _dbcontext.Users.Single(u => u.Email == email && SaltAndHash(password, u.Salt) == u.Password).ToDAL();
+            foreach(EF.Models.User u in _dbcontext.Users)
+            {
+                if (u.Email.Equals(email) && SaltAndHash(password, u.Salt).SequenceEqual(u.Password))
+                { return u.ToDAL(); }
+            }
+            throw new InvalidOperationException();
         }
 
         public bool Delete(Guid userId)
         {
-            throw new NotImplementedException();
+            EF.Models.User user = _dbcontext.Users.Single(u => u.UserId == userId);
+            if (user.DisableDate is null) return false;
+            user.DisableDate = DateTime.Now;
+            _dbcontext.SaveChanges();
+            return true;
         }
 
         public async IAsyncEnumerable<User> Get()

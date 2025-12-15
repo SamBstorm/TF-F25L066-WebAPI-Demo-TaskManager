@@ -17,12 +17,16 @@ namespace TaskManager.EF
         {
             _connectionString = connectionString;
         }
+        public TaskManagerDbContext()
+        {
+            _connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=TaskManager.EntityFramework;Integrated Security=True;Encrypt=True";
+        }
 
         public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            object value = optionsBuilder.UseSqlServer();
+            object value = optionsBuilder.UseSqlServer(_connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
