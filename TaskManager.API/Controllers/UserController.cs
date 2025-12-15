@@ -36,11 +36,11 @@ namespace TaskManager.API.Controllers
         [ProducesResponseType<User>(200)]
         [ProducesResponseType<ErrorResponse>(404)]
         [ProducesResponseType(418)]
-        public IActionResult Get(Guid id)
+        public ActionResult<User> Get(Guid id)
         {
             try
             {
-                return Ok(_userService.Get(id));
+                return _userService.Get(id);
             }
             catch (ArgumentOutOfRangeException)
             {
